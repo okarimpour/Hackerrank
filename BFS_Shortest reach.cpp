@@ -1,108 +1,79 @@
-#include <bits/stdc++.h>
-
+#include <cmath>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include <queue>
+#include <list>
 using namespace std;
 
-vector<string> split_string(string);
-
-// Complete the bfs function below.
-vector<int> bfs(int n, int m, vector<vector<int>> edges, int s) {
-    int dis = 6;
-    vector<int> result(n - 1, -1);
-    vector<bool> visited(n + 1, false);
-    vector<int> q;
-    q.push_back(s);
-    visited[s] = true;
-    while (!q.empty()){
-        q.erase(q.begin());
-        for (int i = 1; i <= n; i++) {
-            if (edges[s][i] == 1 && !(visited[i])) {
-                q.push_back(i);
-                visited[i] = true;
-                result[i - 2] = dis;
-            }
+class Graph {
+    public:
+        Graph(int n) {
+            edges.resize(n);
         }
-        dis += 6;
-        s++;
-    }
-    return result;
-}
+    
+        void add_edge(int u, int v) {
+            edges[u].push_back(v); 
+            edges[v].push_back(u); 
+        }
+    
+        vector<int> shortest_reach(int start) {
+            vector<int> distance(edges.size(), -1);
+            vector<bool> visited(edges.size(), false);
+            std::queue<int> q;
+            distance[start] = 0;
+            q.push(start);
+            visited[start] = true;
+            while (!q.empty()){
+                int v = q.front();
+                q.pop();
+                for (auto it = edges[v].begin(); it != edges[v].end(); it++) {
+                    if (!(visited[*it])) {
+                        q.push(*it);
+                        visited[*it] = true;
+                        distance[*it] = distance[v] + 6;
+                    }
+                }
+            }
+            return distance;
+        }
+    private:
+        vector<list<int> > edges;
+};
 
-int main()
-{
-    ofstream fout(getenv("OUTPUT_PATH"));
-
-    int q;
-    cin >> q;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-    for (int q_itr = 0; q_itr < q; q_itr++) {
-        string nm_temp;
-        getline(cin, nm_temp);
-
-        vector<string> nm = split_string(nm_temp);
-
-        int n = stoi(nm[0]);
-
-        int m = stoi(nm[1]);
-
-        vector<vector<int>> edges(m);
+int main() {
+    int queries;
+    cin >> queries;
+        
+    for (int t = 0; t < queries; t++) {
+      
+		int n, m;
+        cin >> n;
+        // Create a graph of size n where each edge weight is 6: 
+        Graph graph(n);
+        cin >> m;
+        // read and set edges
         for (int i = 0; i < m; i++) {
-            edges[i].resize(2);
-
-            for (int j = 0; j < 2; j++) {
-                cin >> edges[i][j];
-            }
-
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            int u, v;
+            cin >> u >> v;
+            u--, v--;
+            // add each edge to the graph
+            graph.add_edge(u, v);
         }
+		int startId;
+        cin >> startId;
+        startId--;
+        // Find shortest reach from node s
+        vector<int> distances = graph.shortest_reach(startId);
 
-        int s;
-        cin >> s;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-        vector<int> result = bfs(n, m, edges, s);
-
-        for (int i = 0; i < result.size(); i++) {
-            fout << result[i];
-
-            if (i != result.size() - 1) {
-                fout << " ";
+        for (int i = 0; i < distances.size(); i++) {
+            if (i != startId) {
+                cout << distances[i] << " ";
             }
         }
-
-        fout << "\n";
+        cout << endl;
     }
-
-    fout.close();
-
+    
     return 0;
-}
-
-vector<string> split_string(string input_string) {
-    string::iterator new_end = unique(input_string.begin(), input_string.end(), [] (const char &x, const char &y) {
-        return x == y and x == ' ';
-    });
-
-    input_string.erase(new_end, input_string.end());
-
-    while (input_string[input_string.length() - 1] == ' ') {
-        input_string.pop_back();
-    }
-
-    vector<string> splits;
-    char delimiter = ' ';
-
-    size_t i = 0;
-    size_t pos = input_string.find(delimiter);
-
-    while (pos != string::npos) {
-        splits.push_back(input_string.substr(i, pos - i));
-
-        i = pos + 1;
-        pos = input_string.find(delimiter, i);
-    }
-
-    splits.push_back(input_string.substr(i, min(pos, input_string.length()) - i + 1));
-
-    return splits;
 }
