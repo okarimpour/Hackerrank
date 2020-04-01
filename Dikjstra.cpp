@@ -13,20 +13,21 @@
 #include <cstring>
 #include <ctime>
 #include <cassert>
+//#include <bits/stdc++.h>
 
 using namespace std;
 
 vector<string> split_string(string);
 
 // Complete the shortestReach function below.
-vector<int> shortestReach(int n, vector<vector<int> > edges, int s) {
+vector<int> shortestReach(int n, vector<vector<int>> edges, int s) {
     std::vector<int> pathCost (n + 1, -1);
     std::vector<bool> visited (n + 1, false);
     std::queue<int> q;
     visited[s] = true;
     pathCost[s] = 0;
     q.push(s);
-    while (!q.empty()){
+    while (!q.empty()) {
         int v = q.front();
         q.pop();
         for (int i = 0; i < edges.size(); i++) {
@@ -38,6 +39,7 @@ vector<int> shortestReach(int n, vector<vector<int> > edges, int s) {
                 }
                 else if (visited[edges [i][1]] == true && pathCost[v] + edges [i][2] < pathCost[edges [i][1]]) {
                     pathCost[edges [i][1]] = pathCost[v] + edges [i][2];
+                    q.push(edges [i][1]);
                 }
             }
             else if (edges[i][1] == v) {
@@ -48,6 +50,7 @@ vector<int> shortestReach(int n, vector<vector<int> > edges, int s) {
                 }
                 else if (visited[edges [i][0]] == true && pathCost[v] + edges [i][2] < pathCost[edges [i][0]]) {
                     pathCost[edges [i][0]] = pathCost[v] + edges [i][2];
+                    q.push(edges [i][0]);
                 }
             }
         }
@@ -75,7 +78,7 @@ int main()
 
         int m = stoi(nm[1]);
 
-        vector<vector<int> > edges(m);
+        vector<vector<int>> edges(m);
         for (int i = 0; i < m; i++) {
             edges[i].resize(3);
 
