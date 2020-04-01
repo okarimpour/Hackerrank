@@ -20,7 +20,41 @@ vector<string> split_string(string);
 
 // Complete the shortestReach function below.
 vector<int> shortestReach(int n, vector<vector<int> > edges, int s) {
-
+    std::vector<int> pathCost (n + 1, -1);
+    std::vector<bool> visited (n + 1, false);
+    std::queue<int> q;
+    visited[s] = true;
+    pathCost[s] = 0;
+    q.push(s);
+    while (!q.empty()){
+        int v = q.front();
+        q.pop();
+        for (int i = 0; i < edges.size(); i++) {
+            if (edges[i][0] == v) {
+                if (visited[edges [i][1]] == false) {
+                    visited[edges [i][1]] = true;
+                    q.push(edges [i][1]);
+                    pathCost[edges [i][1]] = pathCost[v] + edges [i][2];
+                }
+                else if (visited[edges [i][1]] == true && pathCost[v] + edges [i][2] < pathCost[edges [i][1]]) {
+                    pathCost[edges [i][1]] = pathCost[v] + edges [i][2];
+                }
+            }
+            else if (edges[i][1] == v) {
+                if (visited[edges [i][0]] == false) {
+                    visited[edges [i][0]] = true;
+                    q.push(edges [i][0]);
+                    pathCost[edges [i][0]] = pathCost[v] + edges [i][2];
+                }
+                else if (visited[edges [i][0]] == true && pathCost[v] + edges [i][2] < pathCost[edges [i][0]]) {
+                    pathCost[edges [i][0]] = pathCost[v] + edges [i][2];
+                }
+            }
+        }
+    }
+    pathCost.erase (pathCost.begin());
+    pathCost.erase (pathCost.begin() + s - 1);
+    return pathCost;
 }
 
 int main()
