@@ -18,8 +18,8 @@
 
 #define ROW 10
 #define COL 10
-int INT_INF = std::numeric_limits<int>::max();
-int DBL_INF = std::numeric_limits<double>::max();
+int INT_INF = 1e9;
+int DBL_INF = 1e9;
 
 struct cell {
     int parent_i, parent_j;
@@ -49,31 +49,32 @@ double heurestic (int row, int col, std::pair<int, int> dest) {
     //Euclidean Distance (For anyway)
     return ((double) sqrt ((row - dest.first)*(row - dest.first) + (col - dest.second)*(col - dest.second)));
 }
-void backTrack (cell cellDetailed[ROW][COL], std::pair<int, int> dest) {
+void backTrack (cell cellDetailed[][COL], std::pair<int, int> dest) {
 
     int row = dest.first;
     int col = dest.second;
     double pathCost = cellDetailed[row][col].f;
-    std::cout << "The path cost is : " << pathCost << std::endl;
+    std::cout << "The path cost is: " << pathCost << std::endl;
     std::stack <std::pair<int, int> > path;
+		//std::cout << cellDetailed[row][col].parent_i << cellDetailed[row][col].parent_j << std::endl;
+    while (!(cellDetailed[row][col].parent_i == row && cellDetailed[row][col].parent_j == col)) {
+      	//std::cout << cellDetailed[row][col].parent_i << cellDetailed[row][col].parent_j << std::endl;
+        path.push(std::make_pair(row, col));
+        int temp_row = cellDetailed[row][col].parent_i;
+        int temp_col = cellDetailed[row][col].parent_j;
+      	row = temp_row;
+      	col = temp_col;
+    }
+
     path.push(std::make_pair(row, col));
 
-    while (cellDetailed[row][col].parent_i != row && cellDetailed[row][col].parent_j != col) {
-        row = cellDetailed[row][col].parent_i;
-        col = cellDetailed[row][col].parent_j;
-
-        path.push(std::make_pair(row, col));
-
-        while(!path.empty()) {
-            std::pair<int, int> cellToPath= path.top();
-            path.pop();
-
-            std::cout << cellToPath.first << cellToPath.second << std::endl;
-        }
-
+    while(!path.empty()) {
+        std::pair<int, int> cellToPath = path.top();
+        path.pop();
+        printf ("-> (%d, %d)", cellToPath.first, cellToPath.second);
     }
 }
-void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int> dest) {
+void AStar (int grid[][COL], std::pair <int, int> start, std::pair <int, int> dest) {
 
     //Best cases
     if (isValid(start.first, start.second) == false) {
@@ -135,6 +136,10 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 cellDetailed [r - 1][c].parent_i = r;
                 cellDetailed [r - 1][c].parent_j = c;
                 std::cout << "We found the destination" << std::endl;
+              	cellDetailed[r - 1][c].g = cellDetailed[r][c].g + 1.0;
+              	cellDetailed[r - 1][c].h = heurestic (r - 1, c, dest);
+              	cellDetailed[r - 1][c].f = cellDetailed[r - 1][c].g + cellDetailed[r - 1][c].h;
+                  
                 DestFound = true;
                 backTrack(cellDetailed, dest);
                 return;
@@ -144,7 +149,7 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 HNew = heurestic (r - 1, c, dest);
                 FNew = GNew + HNew;
 
-                if (FNew < cellDetailed[r - 1][c].f || cellDetailed[r - 1][c].f = DBL_INF) {
+                if (FNew < cellDetailed[r - 1][c].f) {
 
                     openedList.insert(std::make_pair(FNew, std::make_pair(r - 1, c)));
 
@@ -156,11 +161,15 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 }
             }
         }
-        if (isValid (r + 1, c)) {
+        if (isValid (r + 1, c) == true) {
             if (isDestination(r + 1, c, dest) == true) {
                 cellDetailed[r + 1][c].parent_i = r;
                 cellDetailed[r + 1][c].parent_j = c;
                 std::cout << "We found the destination" << std::endl;
+              	cellDetailed[r + 1][c].g = cellDetailed[r][c].g + 1.0;
+              	cellDetailed[r + 1][c].h = heurestic (r + 1, c, dest);
+              	cellDetailed[r + 1][c].f = cellDetailed[r + 1][c].g + cellDetailed[r + 1][c].h;
+                
                 DestFound = true;
                 backTrack(cellDetailed, dest);
                 return;
@@ -170,7 +179,7 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 HNew = heurestic (r + 1, c, dest);
                 FNew = GNew + HNew;
 
-                if (FNew < cellDetailed[r + 1][c].f || cellDetailed[r + 1][c].f = DBL_INF) {
+                if (FNew < cellDetailed[r + 1][c].f) {
 
                     openedList.insert(std::make_pair(FNew, std::make_pair(r + 1, c)));
 
@@ -182,11 +191,15 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 }
             }
         }
-        if (isValid (r, c - 1)) {
+        if (isValid (r, c - 1) == true) {
             if (isDestination (r, c - 1, dest) == true) {
                 cellDetailed[r][c - 1].parent_i = r;
                 cellDetailed[r][c - 1].parent_j = c;
                 std::cout << "We found the destination" << std::endl;
+              	cellDetailed[r][c - 1].g = cellDetailed[r][c].g + 1.0;
+              	cellDetailed[r][c - 1].h = heurestic (r, c - 1, dest);
+              	cellDetailed[r][c - 1].f = cellDetailed[r][c - 1].g + cellDetailed[r][c - 1].h;
+                
                 DestFound = true;
                 backTrack(cellDetailed, dest);
                 return;
@@ -196,9 +209,9 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 HNew = heurestic (r, c - 1, dest);
                 FNew = GNew + HNew;
 
-                if (FNew < cellDetailed[r][c - 1].f || cellDetailed[r][c - 1].f = DBL_INF) {
+                if (FNew < cellDetailed[r][c - 1].f) {
 
-                    openedList.insert(std::make_pair(FNew, std::make_pair(r - 1, c)));
+                    openedList.insert(std::make_pair(FNew, std::make_pair(r, c - 1)));
 
                     cellDetailed[r][c - 1].f = FNew;
                     cellDetailed[r][c - 1].g = GNew;
@@ -208,11 +221,15 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 }
             }
         }
-        if (isValid (r, c + 1)) {
+        if (isValid (r, c + 1) == true) {
             if (isDestination (r, c + 1, dest) == true) {
                 cellDetailed[r][c + 1].parent_i = r;
                 cellDetailed[r][c + 1].parent_j = c;
                 std::cout << "We found the destination" << std::endl;
+              	cellDetailed[r][c + 1].g = cellDetailed[r][c].g + 1.0;
+              	cellDetailed[r][c + 1].h = heurestic (r, c + 1, dest);
+              	cellDetailed[r][c + 1].f = cellDetailed[r][c + 1].g + cellDetailed[r][c + 1].h;
+              
                 DestFound = true;
                 backTrack(cellDetailed, dest);
                 return;
@@ -222,9 +239,9 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 HNew = heurestic (r, c + 1, dest);
                 FNew = GNew + HNew;
 
-                if (FNew < cellDetailed[r][c + 1].f || cellDetailed[r][c + 1].f = DBL_INF) {
+                if (FNew < cellDetailed[r][c + 1].f) {
 
-                    openedList.insert(std::make_pair(FNew, std::make_pair(r + 1, c)));
+                    openedList.insert(std::make_pair(FNew, std::make_pair(r, c + 1)));
 
                     cellDetailed[r][c + 1].f = FNew;
                     cellDetailed[r][c + 1].g = GNew;
@@ -234,11 +251,15 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 }
             }
         }
-        if (isValid (r - 1, c - 1)) {
+        if (isValid (r - 1, c - 1) == true) {
             if (isDestination (r - 1, c - 1, dest) == true) {
                 cellDetailed[r - 1][c - 1].parent_i = r;
                 cellDetailed[r - 1][c - 1].parent_j = c;
                 std::cout << "We found the destination" << std::endl;
+              	cellDetailed[r - 1][c - 1].g = cellDetailed[r][c].g + 1.4;
+              	cellDetailed[r - 1][c - 1].h = heurestic (r - 1, c - 1, dest);
+              	cellDetailed[r - 1][c - 1].f = cellDetailed[r - 1][c - 1].g + cellDetailed[r - 1][c - 1].h;
+                  
                 DestFound = true;
                 backTrack(cellDetailed, dest);
                 return;
@@ -248,7 +269,7 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 HNew = heurestic (r - 1, c - 1, dest);
                 FNew = GNew + HNew;
 
-                if (FNew < cellDetailed[r - 1][c - 1].f || cellDetailed[r - 1][c - 1].f = DBL_INF) {
+                if (FNew < cellDetailed[r - 1][c - 1].f) {
 
                     openedList.insert(std::make_pair(FNew, std::make_pair(r - 1, c - 1)));
 
@@ -260,11 +281,15 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 }
             }
         }
-        if (isValid (r - 1, c + 1)) {
+        if (isValid (r - 1, c + 1) == true) {
             if (isDestination (r - 1, c + 1, dest) == true) {
                 cellDetailed[r - 1][c + 1].parent_i = r;
                 cellDetailed[r - 1][c + 1].parent_j = c;
                 std::cout << "We found the destination" << std::endl;
+              	cellDetailed[r - 1][c + 1].g = cellDetailed[r][c].g + 1.4;
+              	cellDetailed[r - 1][c + 1].h = heurestic (r - 1, c + 1, dest);
+              	cellDetailed[r - 1][c + 1].f = cellDetailed[r - 1][c + 1].g + cellDetailed[r - 1][c + 1].h;
+                
                 DestFound = true;
                 backTrack(cellDetailed, dest);
                 return;
@@ -274,7 +299,7 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 HNew = heurestic (r - 1, c + 1, dest);
                 FNew = GNew + HNew;
 
-                if (FNew < cellDetailed[r - 1][c + 1].f || cellDetailed[r - 1][c + 1].f = DBL_INF) {
+                if (FNew < cellDetailed[r - 1][c + 1].f) {
 
                     openedList.insert(std::make_pair(FNew, std::make_pair(r - 1, c + 1)));
 
@@ -286,11 +311,15 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 }
             }
         }
-        if (isValid (r + 1, c - 1)) {
+        if (isValid (r + 1, c - 1) == true) {
             if (isDestination (r + 1, c - 1, dest) == true) {
                 cellDetailed[r + 1][c - 1].parent_i = r;
                 cellDetailed[r + 1][c - 1].parent_j = c;
                 std::cout << "We found the destination" << std::endl;
+              	cellDetailed[r + 1][c - 1].g = cellDetailed[r][c].g + 1.4;
+              	cellDetailed[r + 1][c - 1].h = heurestic (r + 1, c - 1, dest);
+              	cellDetailed[r + 1][c - 1].f = cellDetailed[r + 1][c - 1].g + cellDetailed[r + 1][c - 1].h;
+                
                 DestFound = true;
                 backTrack(cellDetailed, dest);
                 return;
@@ -300,7 +329,7 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 HNew = heurestic (r + 1, c - 1, dest);
                 FNew = GNew + HNew;
 
-                if (FNew < cellDetailed[r + 1][c - 1].f || cellDetailed[r + 1][c - 1].f = DBL_INF) {
+                if (FNew < cellDetailed[r + 1][c - 1].f) {
 
                     openedList.insert(std::make_pair(FNew, std::make_pair(r + 1, c - 1)));
 
@@ -312,11 +341,15 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 }
             }
         }
-        if (isValid (r + 1, c + 1)) {
+        if (isValid (r + 1, c + 1) == true) {
             if (isDestination (r + 1, c + 1, dest) == true) {
                 cellDetailed[r + 1][c + 1].parent_i = r;
                 cellDetailed[r + 1][c + 1].parent_j = c;
                 std::cout << "We found the destination" << std::endl;
+              	cellDetailed[r + 1][c + 1].g = cellDetailed[r][c].g + 1.4;
+              	cellDetailed[r + 1][c + 1].h = heurestic (r + 1, c + 1, dest);
+              	cellDetailed[r + 1][c + 1].f = cellDetailed[r + 1][c + 1].g + cellDetailed[r + 1][c + 1].h;
+                
                 DestFound = true;
                 backTrack(cellDetailed, dest);
                 return;
@@ -326,7 +359,7 @@ void AStar (int grid[ROW][COL], std::pair <int, int> start, std::pair <int, int>
                 HNew = heurestic (r + 1, c + 1, dest);
                 FNew = GNew + HNew;
 
-                if (FNew < cellDetailed[r + 1][c + 1].f || cellDetailed[r + 1][c + 1].f = DBL_INF) {
+                if (FNew < cellDetailed[r + 1][c + 1].f) {
 
                     openedList.insert(std::make_pair(FNew, std::make_pair(r + 1, c + 1)));
 
