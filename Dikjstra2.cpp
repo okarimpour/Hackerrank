@@ -16,8 +16,6 @@
 #include <limits>
 #include <list>
 
-//using namespace std;
-
 class Graph {
     public:
         Graph (int v);
@@ -41,26 +39,19 @@ std::vector<int> Graph::Dijkstra (int start) {
     std::vector<int> distances(adj.size(), INF);
     std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int> >, std::greater<std::pair<int, int> > > pq;
     pq.push(std::make_pair(0, start));
-    visited[start] = true;
     distances[start] = 0;
 
     while (!pq.empty()) {
-        int weight = (pq.top()).first;
-        int node = (pq.top()).second;
+        int u = (pq.top()).second;
         pq.pop();
+        visited[u] = true;
         std::list<std::pair<int, int> >::iterator it;
-        for (it = adj[node].begin(); it != adj[node].end(); it++) {
-            int w = (*it).first;
-            int n = (*it).second;
-
-            if (visited[n] == false) {
-                visited[n] = true;
-                distances[n] = weight + w;
-                pq.push(std::make_pair(w, n));
-            }
-            else if (visited[n] == true && weight + w < distances[n]) {
-                distances[n] = weight + w;
-                pq.push(std::make_pair(w, n));
+        for (it = adj[u].begin(); it != adj[u].end(); it++) {
+            int v = (*it).first;
+            int w = (*it).second;
+            if (visited[v] == false && distances[u] + w < distances[v]) {
+                distances[v] = distances[u] + w;
+                pq.push(std::make_pair(distances[v], v));
             }
         }
     }
