@@ -4,18 +4,20 @@ using namespace std;
 
 vector<string> split_string(string);
 
-// Complete the sockMerchant function below.
-int sockMerchant(int n, vector<int> ar) {
-    std::sort(ar.begin(), ar.end());
-    int pairs = 0;
-    int arrayElement;
-    for (arrayElement = 0; arrayElement < n - 1; ++arrayElement) {
-        if (ar[arrayElement] == ar[arrayElement + 1]) {
-            pairs += 1;
-            arrayElement += 1;
+// Complete the jumpingOnClouds function below.
+int jumpingOnClouds(vector<int> c) {
+    int index = 0;
+    int total_jumps = 0;
+    while (index != c.size() - 1) {
+        if (index + 2 < c.size() && c[index + 2] == 0) {
+            total_jumps += 1;
+            index += 2;
+        } else if (index + 1 < c.size() && c[index + 1] == 0) {
+            total_jumps += 1;
+            index += 1;
         }
     }
-    return pairs;
+    return total_jumps;
 }
 
 int main()
@@ -26,20 +28,20 @@ int main()
     cin >> n;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    string ar_temp_temp;
-    getline(cin, ar_temp_temp);
+    string c_temp_temp;
+    getline(cin, c_temp_temp);
 
-    vector<string> ar_temp = split_string(ar_temp_temp);
+    vector<string> c_temp = split_string(c_temp_temp);
 
-    vector<int> ar(n);
+    vector<int> c(n);
 
     for (int i = 0; i < n; i++) {
-        int ar_item = stoi(ar_temp[i]);
+        int c_item = stoi(c_temp[i]);
 
-        ar[i] = ar_item;
+        c[i] = c_item;
     }
 
-    int result = sockMerchant(n, ar);
+    int result = jumpingOnClouds(c);
 
     fout << result << "\n";
 
@@ -76,3 +78,4 @@ vector<string> split_string(string input_string) {
 
     return splits;
 }
+
